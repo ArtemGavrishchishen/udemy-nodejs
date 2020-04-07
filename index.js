@@ -8,21 +8,22 @@ const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
 const varMidleware = require('./middleware/variables');
 const userMidleware = require('./middleware/user');
+const keys = require('./keys');
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI =
-  'mongodb+srv://admin:W1QgPUzjRoJVAWbv@cluster0-arlmn.azure.mongodb.net/app';
+
 const app = express();
 
 const store = new MongoStore({
   collection: 'sessions',
-  uri: MONGODB_URI
+  uri: keys.MONGODB_URI,
 });
 
 //== hbs configurations in express - start
 const hbs = exphbs.create({
   defaultLayout: 'main',
-  extname: 'hbs'
+  extname: 'hbs',
+  helpers: require('./utils/hbs-helpers'),
 });
 // Register `hbs.engine` with the Express app.
 app.engine('hbs', hbs.engine);
@@ -34,10 +35,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    secret: 'some secret value',
+    secret: keys.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store
+    store,
   })
 );
 app.use(csurf());
@@ -55,10 +56,10 @@ app.use('/auth', require('./routes/auth'));
 
 async function start() {
   try {
-    await mongoose.connect(MONGODB_URI, {
+    await mongoose.connect(keys.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false
+      useFindAndModify: false,
     });
 
     app.listen(PORT, () => {
