@@ -5,10 +5,10 @@ const auth = require('../middleware/auth');
 const router = Router();
 
 function mapCartItems(cart) {
-  return cart.items.map(c => ({
+  return cart.items.map((c) => ({
     ...c.courseId._doc,
     id: c.courseId.id,
-    count: c.count
+    count: c.count,
   }));
 }
 
@@ -43,7 +43,7 @@ router.get('/', auth, async (req, res) => {
     title: 'Корзина',
     isCard: true,
     courses: courses,
-    price: computePrice(courses)
+    price: computePrice(courses),
   });
 });
 

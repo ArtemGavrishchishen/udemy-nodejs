@@ -4,10 +4,14 @@ const csurf = require('csurf');
 const flash = require('connect-flash');
 const path = require('path');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const compression = require('compression');
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
 const varMidleware = require('./middleware/variables');
 const userMidleware = require('./middleware/user');
+const errorMidleware = require('./middleware/error');
+const fileMidleware = require('./middleware/file');
 const keys = require('./keys');
 
 const PORT = process.env.PORT || 5000;
@@ -32,6 +36,7 @@ app.set('views', 'views');
 //== hbs configurations in express - end
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
@@ -41,8 +46,11 @@ app.use(
     store,
   })
 );
+app.use(fileMidleware.single('avatar'));
 app.use(csurf());
 app.use(flash());
+app.use(helmet());
+app.use(compression());
 app.use(varMidleware);
 app.use(userMidleware);
 
@@ -53,6 +61,9 @@ app.use('/add', require('./routes/add'));
 app.use('/card', require('./routes/card'));
 app.use('/orders', require('./routes/orders'));
 app.use('/auth', require('./routes/auth'));
+app.use('/profile', require('./routes/profile'));
+
+app.use(errorMidleware);
 
 async function start() {
   try {

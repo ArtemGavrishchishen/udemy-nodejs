@@ -4,6 +4,7 @@ const userSchema = new Schema({
   email: { type: String, required: true },
   name: { type: String },
   password: { type: String, required: true },
+  avatarUrl: { type: String },
   resetToken: { type: String },
   resetTokenExp: { type: Date },
   cart: {
